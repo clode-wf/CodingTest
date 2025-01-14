@@ -21,5 +21,9 @@ public class Main {
                 tomato[i][j] = Integer.parseInt(row[j]);
             }
         }
+
+        // 상하좌우 이동을 위한 방향 배열
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
     }
 }
