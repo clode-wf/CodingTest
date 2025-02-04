@@ -1,49 +1,65 @@
 
 import java.io.*;
+import java.util.*;
 
 public class Main {
 
+    static int N, M, minDistance = Integer.MAX_VALUE;
+    static List<int[]> houses = new ArrayList<>();
+    static List<int[]> chickens = new ArrayList<>();
+    static int[][] selected; // 선택된 치킨집 조합
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        dp(n);
+        N = Integer.parseInt(st.nextToken()); // 도시 크기
+        M = Integer.parseInt(st.nextToken()); // 유지할 치킨집 개수
 
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < N; j++) {
+                int value = Integer.parseInt(st.nextToken());
+                if (value == 1) {
+                    houses.add(new int[]{i, j});  // 집 저장
+                 }else if (value == 2) {
+                    chickens.add(new int[]{i, j});  // 치킨집 저장
+
+                            }}
+        }
+
+        selected = new int[M][2]; // M개의 치킨집을 선택하는 배열
+        combination(0, 0);
+
+        System.out.println(minDistance); // 최소 치킨 거리 출력
     }
 
-    static int dp(int n) {
-        int[] dp = new int[n + 1];
-        int[] path = new int[n + 1];
-
-        dp[1] = 0;
-        path[1] = 0;
-
-        for (int i = 2; i <= n; i++) {
-            //-1 연산 했을때를 미리 저장
-            dp[i] = dp[i - 1] + 1;
-            //이전 값 미리 저장
-            path[i] = i - 1;
-            //-1 연산과 나누기 2, 나누기 3 연산 횟수 비교교
-            if (i % 2 == 0 && dp[i] > dp[i / 2] + 1) {
-                dp[i] = dp[i / 2] + 1;
-                path[i] = i / 2;
-
-            }
-            if (i % 3 == 0 && dp[i] > dp[i / 3] + 1) {
-                dp[i] = dp[i / 3] + 1;
-                path[i] = i / 3;
-            }
+    // 치킨집 M개를 선택하는 조합을 구하는 함수 (백트래킹)
+    static void combination(int depth, int start) {
+        if (depth == M) { // M개를 선택했으면 최소 치킨 거리 계산
+            minDistance = Math.min(minDistance, getChickenDistance());
+            return;
         }
-        //최소 연산 출력
-        System.out.println(dp[n]);
 
-        //경로 출력
-        StringBuilder sb = new StringBuilder();
-        while (n > 0) {
-            sb.append(n).append(" ");
-            n = path[n];
+        for (int i = start; i < chickens.size(); i++) {
+            selected[depth] = chickens.get(i); // 치킨집 선택
+            combination(depth + 1, i + 1); // 다음 치킨집 선택
         }
-        System.out.println(sb.toString());
-        return dp[n];
+    }
+
+    // 현재 선택된 M개의 치킨집에 대한 도시의 치킨 거리 계산
+    static int getChickenDistance() {
+        int totalDistance = 0;
+
+        for (int[] house : houses) { // 모든 집에 대해 최소 치킨 거리 계산
+            int minHouseDistance = Integer.MAX_VALUE;
+            for (int[] chicken : selected) {
+                int distance = Math.abs(house[0] - chicken[0]) + Math.abs(house[1] - chicken[1]); // 맨해튼 거리
+                minHouseDistance = Math.min(minHouseDistance, distance);
+            }
+            totalDistance += minHouseDistance; // 도시의 치킨 거리 합산
+        }
+
+        return totalDistance;
     }
 }
